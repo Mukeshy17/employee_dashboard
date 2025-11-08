@@ -16,6 +16,14 @@ const router = express.Router();
 // All leave routes require authentication
 router.use(authenticateToken);
 
+// Log POST request payloads for leave applications
+router.use((req, res, next) => {
+  if (req.method === 'POST') {
+    console.log('Leave application payload:', req.body);
+  }
+  next();
+});
+
 // GET routes
 router.get('/', getAllLeaveApplications);
 router.get('/employee/:employeeId', getLeaveApplicationsByEmployee);
@@ -26,7 +34,7 @@ router.post('/', validate(schemas.createLeaveApplication), createLeaveApplicatio
 
 // PUT routes
 router.put('/:id', validate(schemas.updateLeaveApplication), updateLeaveApplication);
-router.patch('/:id/status', requireAdmin, updateLeaveStatus);
+router.put('/:id/status', authenticateToken, updateLeaveStatus);
 
 // DELETE routes
 router.delete('/:id', deleteLeaveApplication);

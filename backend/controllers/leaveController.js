@@ -88,63 +88,64 @@ export const getLeaveApplicationById = async (req, res) => {
 
 // Create new leave application
 export const createLeaveApplication = async (req, res) => {
-  const { employeeId, startDate, endDate, reason = '' } = req.body;
+  const {
+    employee_name,
+    employee_email,
+    supervisor,
+    start_date,
+    end_date,
+    reason,
+    status = 'pending',
+    applied_date = new Date().toISOString().split('T')[0] // Default to today
+  } = req.body;
+
+  // Validate required fields
+  if (!employee_name || !employee_email || !start_date || !end_date) {
+    return res.status(400).json({
+      success: false,
+      message: 'Missing required fields: name, email, start date, and end date are required'
+    });
+  }
 
   try {
-    // Get employee details
+    // First, get the employee_id from employees table
     const [employees] = await pool.execute(
-      'SELECT name, email, supervisor FROM employees WHERE id = ?',
-      [employeeId]
+      'SELECT id FROM employees WHERE email = ?',
+      [employee_email]
     );
 
-    if (employees.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Employee not found'
-      });
-    }
+    const employee_id = employees.length > 0 ? employees[0].id : null;
 
-    const employee = employees[0];
-    const appliedDate = new Date().toISOString().split('T')[0];
+    // Insert leave application with employee_id and applied_date
+    const [result] = await pool.execute(
+      `INSERT INTO leave_applications 
+       (employee_id, employee_name, employee_email, supervisor, start_date, end_date, reason, status, applied_date) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [employee_id, employee_name, employee_email, supervisor, start_date, end_date, reason, status, applied_date]
+    );
 
-    // Create leave application
-    const [result] = await pool.execute(`
-      INSERT INTO leave_applications (
-        employee_id, employee_name, employee_email, supervisor, 
-        start_date, end_date, reason, applied_date
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      employeeId, 
-      employee.name, 
-      employee.email, 
-      employee.supervisor, 
-      startDate, 
-      endDate, 
-      reason, 
-      appliedDate
-    ]);
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: 'Leave application created successfully',
+      message: 'Leave application submitted successfully',
       data: {
         id: result.insertId,
-        employeeId,
-        employeeName: employee.name,
-        employeeEmail: employee.email,
-        supervisor: employee.supervisor,
-        startDate,
-        endDate,
+        employee_id,
+        employee_name,
+        employee_email,
+        supervisor,
+        start_date,
+        end_date,
         reason,
-        status: 'pending',
-        appliedDate
+        status,
+        applied_date
       }
     });
   } catch (error) {
-    console.error('Create leave application error:', error);
-    res.status(500).json({
+    console.error('Create leave application error:', error.message);
+    return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Failed to submit leave application',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -346,43 +347,68 @@ export const deleteLeaveApplication = async (req, res) => {
 // Approve or reject leave application (Admin only)
 export const updateLeaveStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, updated_by } = req.body;
 
   if (!['approved', 'rejected'].includes(status)) {
     return res.status(400).json({
       success: false,
-      message: 'Status must be either "approved" or "rejected"'
+      message: 'Invalid status. Must be either approved or rejected'
     });
   }
 
   try {
-    // Check if leave application exists
-    const [existingLeaves] = await pool.execute(
-      'SELECT id FROM leave_applications WHERE id = ?',
+    // First verify this user is the supervisor for this leave
+    const [leaves] = await pool.execute(
+      'SELECT * FROM leave_applications WHERE id = ?',
       [id]
     );
 
-    if (existingLeaves.length === 0) {
+    if (leaves.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Leave application not found'
       });
     }
 
-    await pool.execute(
-      'UPDATE leave_applications SET status = ? WHERE id = ?',
-      [status, id]
+    const leave = leaves[0];
+
+    // Only supervisor can update status
+    if (leave.supervisor !== req.user.email) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the assigned supervisor can approve/reject leaves'
+      });
+    }
+
+    // Update the status
+    const [result] = await pool.execute(
+      `UPDATE leave_applications 
+       SET status = ?, 
+           updated_by = ?,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+      [status, updated_by, id]
     );
 
-    res.json({
+    if (result.affectedRows === 0) {
+      throw new Error('Failed to update leave status');
+    }
+
+    return res.json({
       success: true,
-      message: `Leave application ${status} successfully`
+      message: `Leave application ${status}`,
+      data: {
+        ...leave,
+        status,
+        updated_by,
+        updated_at: new Date()
+      }
     });
   } catch (error) {
     console.error('Update leave status error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Failed to update leave status'
     });
   }
 };

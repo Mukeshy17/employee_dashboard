@@ -59,10 +59,14 @@ export const schemas = {
 
   // Leave application schemas
   createLeaveApplication: Joi.object({
-    employeeId: Joi.number().integer().positive().required(),
-    startDate: Joi.date().iso().required(),
-    endDate: Joi.date().iso().min(Joi.ref('startDate')).required(),
-    reason: Joi.string().max(255).allow('')
+    employee_name: Joi.string().required(),
+    employee_email: Joi.string().email().required(),
+    supervisor: Joi.string().allow('', null),
+    start_date: Joi.date().iso().required(),
+    end_date: Joi.date().iso().min(Joi.ref('start_date')).required(),
+    reason: Joi.string().allow('', null),
+    status: Joi.string().valid('pending', 'approved', 'rejected').default('pending'),
+    applied_date: Joi.date().iso() // Add this line
   }),
 
   updateLeaveApplication: Joi.object({
