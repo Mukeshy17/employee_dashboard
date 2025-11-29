@@ -137,7 +137,7 @@ const EmployeesTab = ({ employees, setEmployees }) => {
                     <div className="flex items-center gap-3">
                       <div className="flex-shrink-0">
                         <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-semibold">
-                          {employee.name ? employee.name.split(' ').map(n=>n[0]).slice(0,2).join('') : '?'}
+                          {employee.name ? employee.name.split(' ').map(n => n[0]).slice(0, 2).join('') : '?'}
                         </div>
                       </div>
                       <div>
@@ -170,9 +170,8 @@ const EmployeesTab = ({ employees, setEmployees }) => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => toggleAvailability(employee.id)}
-                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors focus:outline-none ${
-                        employee.availableForTask ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
-                      } ${!user?.is_admin ? 'opacity-60 cursor-not-allowed' : 'hover:brightness-95'}`}
+                      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium transition-colors focus:outline-none ${employee.availableForTask ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                        } ${!user?.is_admin ? 'opacity-60 cursor-not-allowed' : 'hover:brightness-95'}`}
                       disabled={!user?.is_admin}
                       title={!user?.is_admin ? 'Only admin can change status' : ''}
                     >
@@ -182,9 +181,8 @@ const EmployeesTab = ({ employees, setEmployees }) => {
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                      employee.useTransport ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'
-                    }`}>
+                    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${employee.useTransport ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'
+                      }`}>
                       <Truck className="w-4 h-4" />
                       {employee.useTransport ? 'Yes' : 'No'}
                     </span>
