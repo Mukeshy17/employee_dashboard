@@ -9,7 +9,7 @@ import {
 } from '../controllers/employeeController.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { validate, schemas } from '../middleware/validation.js';
-import { login, register, getProfile, updateProfile, logout } from '../controllers/authController.js';
+import { login, register, getProfile, updateProfile, logout, requestPasswordReset, resetPassword } from '../controllers/authController.js';
 
 const router = express.Router();
 
@@ -17,6 +17,8 @@ const router = express.Router();
 router.post('/login', login);
 router.post('/register', register);
 router.post('/logout', authenticateToken, logout);
+router.post('/request-password-reset', requestPasswordReset);
+router.post('/reset-password', resetPassword);
 
 /**
  * GET /api/employees

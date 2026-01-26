@@ -109,6 +109,14 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
             </button>
           </div>
         </div>
+        
+        {!isSignup && (
+          <div className="text-right">
+            <a href="/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+              Forgot password?
+            </a>
+          </div>
+        )}
 
         {error && <div className="text-rose-600 text-sm">{error}</div>}
 

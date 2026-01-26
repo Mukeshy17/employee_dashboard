@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from "./components/Dashboard"
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
@@ -25,6 +27,22 @@ function App() {
             element={
               <PublicRoute>
                 <Signup />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/forgot-password" 
+            element={
+              <PublicRoute>
+                <ForgotPassword />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/reset-password/:token" 
+            element={
+              <PublicRoute>
+                <ResetPassword />
               </PublicRoute>
             } 
           />
