@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { OAuth2Client } from 'google-auth-library';
 import pool from '../config/database.js';
 import { addToBlacklist } from '../middleware/auth.js';
 
@@ -143,6 +144,43 @@ export const login = async (req, res) => {
       success: false,
       message: 'Internal server error during login'
     });
+  }
+};
+
+// Sign in / register with Google ID token
+export const googleLogin = async (req, res) => {
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).json({ success: false, message: 'ID token is required' });
+
+  try {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name || '';
+
+    // Find or create user
+    const [users] = await pool.execute('SELECT id, name, email, is_admin FROM users WHERE email = ?', [email]);
+    let user;
+    if (users.length === 0) {
+      const [result] = await pool.execute(
+        'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+        [name, email, null]
+      );
+      user = { id: result.insertId, name, email, is_admin: 0 };
+    } else {
+      user = users[0];
+    }
+
+    const token = generateToken(user.id);
+    return res.json({
+      success: true,
+      token,
+      user: { id: user.id, name: user.name, email: user.email, is_admin: Boolean(user.is_admin) }
+    });
+  } catch (error) {
+    console.error('Google login error:', error);
+    return res.status(500).json({ success: false, message: 'Google login failed' });
   }
 };
 

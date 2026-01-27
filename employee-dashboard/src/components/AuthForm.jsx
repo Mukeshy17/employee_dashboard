@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // adjust import path if your helper is elsewhere
 import { apiFetch } from '../utils/api';
+import { GoogleLogin } from '@react-oauth/google';
 
 const AuthForm = ({ mode = 'login', onSuccess }) => {
   const isSignup = mode === 'signup';
@@ -46,6 +47,46 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
       console.log(err);
 
     }
+  };
+
+  // Handle Google credential (from @react-oauth/google)
+  const handleGoogleSuccess = async (credentialResponse) => {
+    const idToken = credentialResponse?.credential;
+    if (!idToken) return;
+    setLoading(true);
+    setError('');
+    try {
+      const { res, json } = await apiFetch('http://localhost:5000/api/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({ idToken }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const result = json ?? (await res.json().catch(() => null));
+      if (!result || !result.success) {
+        setError(result?.message || 'Google sign-in failed');
+        setLoading(false);
+        return;
+      }
+
+      const token = result.token;
+      const user = result.user;
+      if (token) localStorage.setItem('token', token);
+      if (user) localStorage.setItem('user', JSON.stringify(user));
+
+      setLoading(false);
+      if (onSuccess) onSuccess(result);
+      else navigate('/');
+    } catch (err) {
+      console.error(err);
+      setError('Google sign-in network error');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = (err) => {
+    console.error('Google login error', err);
+    setError('Google sign-in failed');
   };
 
   return (
@@ -119,6 +160,12 @@ const AuthForm = ({ mode = 'login', onSuccess }) => {
         )}
 
         {error && <div className="text-rose-600 text-sm">{error}</div>}
+
+        {!isSignup && (
+          <div className="mb-3 flex justify-center">
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+          </div>
+        )}
 
         <button
           type="submit"
