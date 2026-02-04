@@ -31,7 +31,9 @@ const EmployeesTab = ({ employees, setEmployees }) => {
       (e.name || '').toLowerCase().includes(q) ||
       (e.email || '').toLowerCase().includes(q) ||
       (e.contact || '').toLowerCase().includes(q) ||
-      (e.supervisor || '').toLowerCase().includes(q)
+      (e.supervisor || '').toLowerCase().includes(q)||
+      (e.designation || '').toLowerCase().includes(q)
+
     )
   }, [employees, query])
 
@@ -126,8 +128,10 @@ const EmployeesTab = ({ employees, setEmployees }) => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supervisor</th>
+                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Availability</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transport</th>
+
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
@@ -142,12 +146,15 @@ const EmployeesTab = ({ employees, setEmployees }) => {
                       </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">{employee.name}</div>
-                        <div className="text-xs text-gray-500 flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-gray-400" /> {employee.email}
-                        </div>
+                        
                       </div>
                     </div>
                   </td>
+                   <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                          <Mail className="w-3 h-3 text-gray-400" /> <span>{employee.email}</span>
+                        </div>
+                         </td>
 
                   <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                     <div className="text-sm text-gray-700 flex items-center gap-2">
@@ -166,6 +173,14 @@ const EmployeesTab = ({ employees, setEmployees }) => {
                       <span>{employee.supervisor || '-'}</span>
                     </div>
                   </td>
+                         {/* Designation column */}
+                        <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                         <div className="text-sm text-gray-700"><span>{employee.designation || '-'}</span>
+                         </div>
+                    </td>
+                
+
+
 
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
@@ -193,6 +208,7 @@ const EmployeesTab = ({ employees, setEmployees }) => {
               {filteredEmployees.length === 0 && (
                 <tr>
                   <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+              
                     No employees found.
                   </td>
                 </tr>

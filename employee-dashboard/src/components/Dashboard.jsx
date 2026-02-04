@@ -9,9 +9,11 @@ import BandwidthTab from "../components/tabs/BandwidthTab";
 import TransportTab from "../components/tabs/TransportTab";
 import DevicesTab from "../components/tabs/DevicesTab";
 import {useEmployeeData} from '../hooks/useEmployeeData';
+import TimeSheetCard from "../components/TimeSheetCard";
 
 
 const Dashboard = () => {
+  
   const {
     employees,
     setEmployees,
@@ -28,17 +30,27 @@ const Dashboard = () => {
     devicesInUse,
     fullyAvailable,
     busyEmployees,
-    onLeaveToday
+    onLeaveToday,
+    dailyworks,
+    setDailyWorks,
   } = useEmployeeData()
 
   const [activeTab, setActiveTab] = useState('employees')
+  
+
+const addTimeSheetRecord = (record) => {
+  setDailyWorks((prev) => [...prev, record]);
+};
+
+
 
   const tabs = [
     { id: 'employees', name: 'Employees', icon: Users },
     { id: 'leaves', name: 'Leave Applications', icon: Calendar },
     { id: 'bandwidth', name: 'Bandwidth Availability', icon: CheckCircle },
     { id: 'transport', name: 'Transport', icon: Bus },
-    { id: 'devices', name: 'Devices', icon: Smartphone }
+    { id: 'devices', name: 'Devices', icon: Smartphone },
+    { id: 'timesheet', name: 'Timesheet', icon: Calendar }
   ]
 
   const stats = {
@@ -49,7 +61,9 @@ const Dashboard = () => {
     devicesInUse,
     fullyAvailable,
     busyEmployees,
-    onLeaveToday
+    onLeaveToday,
+    dailyworks,
+    
   }
 
   const renderTabContent = () => {
@@ -62,6 +76,14 @@ const Dashboard = () => {
             isAdmin={isAdmin}
           />
         )
+        case 'timesheet':
+        return (
+          <TimeSheetCard
+            dailyworks={dailyworks}
+            onAddRecord={addTimeSheetRecord}
+
+          />
+        ) 
       case 'leaves':
         return (
           <LeavesTab
@@ -95,6 +117,8 @@ const Dashboard = () => {
         return null
     }
   }
+  
+
 
   return (
     <div className="min-h-screen bg-gray-50">

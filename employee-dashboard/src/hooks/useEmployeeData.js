@@ -10,6 +10,8 @@ export const useEmployeeData = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [dailyworks, setDailyWorks] = useState([]);
+
 
   const [leaveApplications, setLeaveApplications] = useState([
     {
@@ -122,5 +124,7 @@ export const useEmployeeData = () => {
     onLeaveToday,
     loading,
     error,
+    dailyworks,
+    setDailyWorks,
   };
 };

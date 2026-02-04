@@ -1,6 +1,21 @@
 import React, { useState, useRef } from 'react';
 import { apiFetch } from '../../utils/api';
 
+
+const statusOptions = [
+    { value: 'available', label: 'Available' },
+    { value: 'partially-available', label: 'Partially Available' },
+    { value: 'busy', label: 'Busy' },
+    { value: 'not-available', label: 'Not Available' }
+  ];
+  const statusdesignation=[
+     {label: "Software Engineer", value: "software_engineer" },
+  { label: "Team Lead", value: "team_lead" },
+  { label: "Manager", value: "manager" },
+  { label: "Sales Executive", value: "sales_executive" },
+  { label: "HR Assistant", value: "hr_assistant" },
+    { label: "Other Employee", value: "employee" },
+  ]
 const AddEmployeeForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -10,6 +25,7 @@ const AddEmployeeForm = ({ onSubmit, onCancel }) => {
     availableForTask: true,
     useTransport: false,
     bandwidthStatus: 'available',
+    designation:'software_engineer',
     currentProject: '',
     skillSet: [],
     workload: 20
@@ -73,9 +89,11 @@ const AddEmployeeForm = ({ onSubmit, onCancel }) => {
         email: '',
         contact: '',
         supervisor: '',
+         designation:'',
         availableForTask: true,
         useTransport: false,
         bandwidthStatus: 'available',
+       
         currentProject: '',
         skillSet: [],
         workload: 20
@@ -171,9 +189,27 @@ const AddEmployeeForm = ({ onSubmit, onCancel }) => {
               onChange={(e) => handleChange('bandwidthStatus', e.target.value)}
               className="w-full rounded-md border border-slate-200 px-3 py-2 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-300"
             >
-              <option value="available">Available</option>
-              <option value="partially-available">Partially Available</option>
-              <option value="busy">Busy</option>
+              {statusOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+             {/* <--Designation--> */}
+            
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Designation</label>
+            <select
+              value={formData.designation}
+              onChange={(e) => handleChange('designation', e.target.value)}
+              className="w-full rounded-md border border-slate-200 px-3 py-2 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+            >
+              {statusdesignation.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

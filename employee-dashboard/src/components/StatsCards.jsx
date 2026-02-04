@@ -1,16 +1,19 @@
 import React from 'react'
-import { Users, CheckCircle, Bus, Calendar } from 'lucide-react'
+import { Users, CheckCircle, Bus, Calendar, ClipboardList } from 'lucide-react'
+
+
 
 
 const StatsCards = ({ stats }) => {
-const { totalEmployees, availableEmployees, transportUsers, pendingLeaves, onLeaveToday } = stats
+const { totalEmployees, availableEmployees, transportUsers, pendingLeaves, onLeaveToday,dailyworks, } = stats
 
 
 const items = [
 { Icon: Users, title: 'Total Employees', value: totalEmployees, accent: 'from-blue-50 to-blue-100' },
 { Icon: CheckCircle, title: 'Available', value: availableEmployees, accent: 'from-emerald-50 to-emerald-100' },
 { Icon: Bus, title: 'Transport', value: transportUsers, accent: 'from-purple-50 to-purple-100' },
-{ Icon: Calendar, title: 'Pending Leaves', value: pendingLeaves, accent: 'from-amber-50 to-amber-100' }
+{ Icon: Calendar, title: 'Pending Leaves', value: pendingLeaves, accent: 'from-amber-50 to-amber-100' },
+  { Icon: ClipboardList, title: 'Timesheet Entries', value: dailyworks?.length || 0, accent: 'from-indigo-50 to-indigo-100', }
 ]
 
 
